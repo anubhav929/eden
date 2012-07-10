@@ -29,20 +29,17 @@ try:
     s3db.load_all_models()
 except NameError:
     print "s3db not defined"
-db = db
 '''
-d = globals().copy()
-d.update(**old_env)
-exec old_str in d, locals()
+globals().update(**old_env)
+exec old_str in globals(), locals()
 
-d.clear()
 
 for a in range(10):
     db[changed_table].insert(name = "test_%s" %(str(a)), type = a%5 , uuid = "%s%s" %(db[changed_table]["uuid"].default,str(a)))
 
 db.commit()
-subprocess.call("python %s/applications/%s/static/scripts/tools/specific_migration.py" % \
-         (WEB2PY_PATH, CURRENT_EDEN_APP) , shell =True )
+subprocess.call("python %s/applications/%s/static/scripts/tools/specific_migration.py %s %s" % \
+         (WEB2PY_PATH, CURRENT_EDEN_APP, WEB2PY_PATH, APP) , shell =True )
 
 """
 Retreiving Data

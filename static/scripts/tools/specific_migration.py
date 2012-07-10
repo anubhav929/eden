@@ -3,11 +3,8 @@ import sys
 import copy
 import subprocess
 
-own_path = os.path.realpath(__file__)
-own_path = own_path.split(os.path.sep)
-index_application = own_path.index("applications")
-WEB2PY_PATH = (os.path.sep).join(own_path[0:index_application])
-APP = "eden"
+WEB2PY_PATH = sys.argv[1]
+APP = sys.argv[2]
 changed_table = "org_organisation"
 new_field = "type_id"
 new_table = "org_organisation_type"
@@ -28,13 +25,10 @@ try:
     s3db.load_all_models()
 except NameError:
     print "s3db not defined"
-db = db
 '''
-d = globals().copy()
-d.update(**old_env)
-exec old_str in d, locals()
+globals().update(**old_env)
+exec old_str in globals(), locals()
 
-d.clear()
 
 database_string = "sqlite://storage.db"
 old_database_folder = "%s/applications/%s/databases" % (WEB2PY_PATH, APP)
@@ -48,7 +42,12 @@ list_of_fields.append(Field(new_field,"integer"))
 list_of_new_table_fields = []
 list_of_new_table_fields.append(Field(new_table_field,"integer"))
 
-temp_db.define_table(changed_table ,db[changed_table],*list_of_fields)
+try:
+	db[changed_table]._primarykey
+except KeyError:
+	db[changed_table]._primarykey = None
+
+temp_db.define_table(changed_table ,db[changed_table],*list_of_fields,primarykey = db[changed_table]._primarykey)
 temp_db.define_table(new_table , *list_of_new_table_fields)
 
 temp_db.commit()
@@ -57,8 +56,8 @@ temp_db.commit()
 
 for old_row in temp_db().select(temp_db[changed_table][old_field]):
     if (len(temp_db(temp_db[new_table][new_table_field] == old_row[old_field]).select()) == 0):
-        temp_db[new_table].insert(name = old_row[old_field])
-    new_id = int(temp_db(temp_db[new_table][new_table_field] == old_row[old_field]).select(temp_db[new_table]["id"])[0]["id"])
-    temp_db(temp_db[changed_table][old_field] == old_row[old_field]).update(type_id = new_id)
+        row = temp_db[new_table].insert(name = old_row[old_field])
+        new_id = int(row["id"])
+        temp_db(temp_db[changed_table][old_field] == old_row[old_field]).update(type_id = new_id)
     
 temp_db.commit()
