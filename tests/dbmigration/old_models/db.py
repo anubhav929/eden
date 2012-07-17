@@ -15,4 +15,4 @@ db.define_table('main',Field('remove_id','integer'))
 db.define_table('renaming',Field('renamed','string'));
 
 #This table is used is used for adding and deleting a field
-db.define_table('edit',Field('name','string'));
+db.define_table('edit',Field('name','string',default = "2"));

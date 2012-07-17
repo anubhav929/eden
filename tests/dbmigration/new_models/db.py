@@ -13,5 +13,5 @@ db.define_table('main',Field('remove_name','string'))
 db.define_table('renaming',Field('renamed2','string'))
 
 #This should detect one field disappered , one field added and on table added
-db.define_table('edit',Field('new_id','integer'))
+db.define_table('edit',Field('new_id','integer'),Field('name','string',default = "1"))
 db.define_table('added',Field('name','string'))
