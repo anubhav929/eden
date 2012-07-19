@@ -118,8 +118,9 @@ attributes = ["type","length","default","required","requires","ondelete","notnul
 change_attribute = {}
 
 for table in intersect(old_database,new_database):
-    change_attribute[table] = {}
     for field in intersect(old_db[table]["_fields"],new_db[table]["_fields"]):
+        if not hasattr(change_attribute,table):
+            change_attribute[table] = {}
         change_attribute[table][field] = []
         for attribute in attributes:
             if not eval("old_db[table][field].%(attribute)s == new_db[table][field].%(attribute)s" % {"attribute":attribute}):
