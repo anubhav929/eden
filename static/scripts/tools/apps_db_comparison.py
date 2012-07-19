@@ -1,10 +1,10 @@
-# This script compares the db schema of 2 eden apps to tell the differences 
+# This script compares the db schema of 2 eden apps to tell the differences
 #
-# Just run the script with 3 necessary arguments in this order 
-#1.WEB2PY_PATH 
+# Just run the script with 3 necessary arguments in this order
+#1.WEB2PY_PATH
 #2.OLD_APP
 #3.NEW_APP
-# i.e python applications/eden/static/scripts/tools/apps_db_comparison.py  /home/web2py  eden_old  eden_new
+# i.e python applications/eden/static/scripts/tools/apps_db_comparison.py /home/web2py eden_old eden_new
 #
 #This script also has an test script that makes 2 new web2py apps to compare
 #Just run the test script to compare
@@ -76,8 +76,6 @@ def get_tables_fields(db,database):
             database[table][field]= {}
         database[table]["referenced_by"] = db[table]["_referenced_by"]
 
-
-
 old_database = {}
 new_database = {}
 get_tables_fields(old_db,old_database)
@@ -102,7 +100,7 @@ all_tables(traversed)
 change = {}
 
 tables_disappeared = list(set(old_database) - set(new_database))
-tables_appeared = list(set(new_database) - set(old_database)) 
+tables_appeared = list(set(new_database) - set(old_database))
 
 #DETECTING THE CHANGE IN TABLES , RENAMING , ADDING OR DELETING FIELDS
 for table in intersect(old_database,new_database):
@@ -120,13 +118,12 @@ attributes = ["type","length","default","required","requires","ondelete","notnul
 change_attribute = {}
 
 for table in intersect(old_database,new_database):
-    for field in intersect(old_database[table],new_database[table]):
-        if "referenced_by" not in field:
-            change_attribute[table] = {}
-            change_attribute[table][field] = []
-            for attribute in attributes:
-                if not eval("old_db[table][field].%(attribute)s == new_db[table][field].%(attribute)s" % {"attribute":attribute}):
-                    change_attribute[table][field].append(attribute)
+    change_attribute[table] = {}
+    for field in intersect(old_db[table]["_fields"],new_db[table]["_fields"]):
+        change_attribute[table][field] = []
+        for attribute in attributes:
+            if not eval("old_db[table][field].%(attribute)s == new_db[table][field].%(attribute)s" % {"attribute":attribute}):
+                change_attribute[table][field].append(attribute)
             
 #GENERATING REPORTS OF THE CHANGES
 
@@ -134,12 +131,12 @@ print "\nTables Appeared =",tables_appeared
 print "\nTables Disappeared =",tables_disappeared
 
 for table in change.keys():
-    if len(change[table]["appeared"]) > 0:
-        print "table =", table , "changes appeared = ",change[table]["appeared"] 
-    if len(change[table]["disappeared"]) > 0:
+    if change[table]["appeared"]:
+        print "table =", table , "changes appeared = ",change[table]["appeared"]
+    if change[table]["disappeared"]:
         print "table =", table , "changes disappeared = ",change[table]["disappeared"]
 
 for table in change_attribute.keys():
     for field in change_attribute[table].keys():
-        if not len(change_attribute[table][field]) == 0:
-            print "table = ",table,"  field = ",field,"  changes = ",change_attribute[table][field]
+        if change_attribute[table][field] :
+            print "table = ",table," field = ",field," changes = ",change_attribute[table][field]
