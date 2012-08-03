@@ -13,7 +13,7 @@ new_field = "type_id"
 old_field = "type"
 new_table_field = "name"
 new_table = "org_organisation_type"
-
+file_to_test = sys.argv[1]
 
 os.chdir(WEB2PY_PATH)
 sys.path.append(WEB2PY_PATH)
@@ -35,11 +35,11 @@ exec old_str in globals(), locals()
 
 
 for a in range(10):
-    db[changed_table].insert(name = "test_%s" %(str(a)), type = a%5 , uuid = "%s%s" %(db[changed_table]["uuid"].default,str(a)))
+    db[changed_table].insert(name = "test_%s" %(str(a)), organisation_type_id = a%5 , uuid = "%s%s" %(db[changed_table]["uuid"].default,str(a)))
 
 db.commit()
-subprocess.call("python %s/applications/%s/static/scripts/tools/specific_migration.py %s %s" % \
-         (WEB2PY_PATH, CURRENT_EDEN_APP, WEB2PY_PATH, APP) , shell =True )
+subprocess.call("python %s/applications/%s/static/scripts/tools/%s.py %s %s" % \
+         (WEB2PY_PATH, CURRENT_EDEN_APP,file_to_test, WEB2PY_PATH, APP) , shell =True )
 
 """
 Retreiving Data
@@ -51,8 +51,8 @@ db = DAL( database_string, folder = old_database_folder, auto_import = True, mig
 
 print "CHANGED TABLE :"
 for row in db(db[changed_table]).select():
-	print "name = ",row["name"],"old_field = ",row[old_field],"new_field = ",row[new_field]
+    print "name = ",row["name"],"old_field = ",row[old_field],"new_field = ",row[new_field]
 
 print "NEW TABLE :"
 for row in db(db[new_table]).select():
-	print "name = ",row[new_table_field],"id = ",row["id"]
+    print "name = ",row[new_table_field],"id = ",row["id"]
