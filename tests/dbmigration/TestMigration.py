@@ -34,8 +34,11 @@ globals().update(**old_env)
 exec old_str in globals(), locals()
 
 
+start = db().select(db[changed_table]["id"].max())
+start = start[0]['MAX(org_organisation.id)']
+
 for a in range(10):
-    db[changed_table].insert(name = "test_%s" %(str(a)), organisation_type_id = a%5 , uuid = "%s%s" %(db[changed_table]["uuid"].default,str(a)))
+    db[changed_table].insert(name = "test_%s" %(str(start+a)), organisation_type_id = a%5 , uuid = "%s%s" %(db[changed_table]["uuid"].default,str(start+a)))
 
 db.commit()
 subprocess.call("python %s/applications/%s/static/scripts/tools/%s.py %s %s" % \

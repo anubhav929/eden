@@ -1,15 +1,13 @@
 
-fields = []
-query = ""
 
-count = -1;
-
-def setfields(db):
-    global fields
+def fields(db):    
+    fields = []
     fields.append(db["org_organisation"].ALL)
-    print "here"
+    return fields
 
-def mapping(rows):
-    global count
-    count = count + 1
-    return rows[count]["id"]
+def query(db):    
+    query = db.org_organisation.organisation_type_id == db.org_organisation_type.id
+    return query
+
+def mapping(row):
+    return row["id"]
