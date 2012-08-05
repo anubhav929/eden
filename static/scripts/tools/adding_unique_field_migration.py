@@ -2,7 +2,6 @@ import os
 import sys
 import copy
 import subprocess
-import mapping_function
 
 # GETTING CONSTANTS
 
@@ -44,24 +43,34 @@ def adding_new_fields(db,new_unique_field,changed_table):
     return temp_db
 
 
-def update_with_mappings(db,changed_table,new_unique_field):
+def update_with_mappings(db,changed_table,field_to_update,mapping_function):
     fields = mapping_function.fields(db)
     if db[changed_table]["id"] not in fields:
         fields.append(db[changed_table]["id"])
-    exec_str="""db(db[changed_table][\"id\"] == row_id).update(%(new_field)s = changed_value)""" % {"new_field":new_unique_field}
-    for row in db(mapping_function.query(db)).select(*fields):
+    exec_str="db(db[changed_table][\"id\"] == row_id).update(%(new_field)s = changed_value)"%{"new_field":field_to_update}
+    rows = db(mapping_function.query(db)).select(*fields)
+    if rows:
         try:
-            row_id = row[changed_table]["id"]
+                rows[0][changed_table]["id"]
+                row_single_layer = False
         except KeyError:
+                rows[0]["id"]
+                row_single_layer = True
+    for row in rows:
+        if not row_single_layer:
+            row_id = row[changed_table]["id"]
+        else:
             row_id = row["id"]
         changed_value = mapping_function.mapping(row)
         exec exec_str in globals(), locals()    
     db.commit()
 
 # CALLING GENERAL FUNCTIONS
-new_unique_field = "NewField"
+field_to_update = "NewField"
 changed_table = "org_organisation"
 
+import mapping_function
+
 db = get_old_db()
-db = adding_new_fields(db,new_unique_field,changed_table)
-update_with_mappings(db,changed_table,new_unique_field)
+db = adding_new_fields(db,field_to_update,changed_table)
+update_with_mappings(db,changed_table,field_to_update,mapping_function)
