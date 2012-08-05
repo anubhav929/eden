@@ -47,7 +47,6 @@ def update_with_mappings(db,changed_table,field_to_update,mapping_function):
     fields = mapping_function.fields(db)
     if db[changed_table]["id"] not in fields:
         fields.append(db[changed_table]["id"])
-    exec_str="db(db[changed_table][\"id\"] == row_id).update(%s = changed_value)" % (field_to_update)
     rows = db(mapping_function.query(db)).select(*fields)
     if rows:
         try:
@@ -55,13 +54,15 @@ def update_with_mappings(db,changed_table,field_to_update,mapping_function):
                 row_single_layer = False
         except KeyError:
                 row_single_layer = True
+    dict_update = {}
     for row in rows:
         if not row_single_layer:
             row_id = row[changed_table]["id"]
         else:
             row_id = row["id"]
         changed_value = mapping_function.mapping(row)
-        exec exec_str in globals(), locals()    
+        dict_update[field_to_update] = changed_value
+        db(db[changed_table]["id"] == row_id).update(**dict_update)    
     db.commit()
 
 # CALLING GENERAL FUNCTIONS
