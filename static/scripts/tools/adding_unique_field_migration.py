@@ -48,13 +48,12 @@ def update_with_mappings(db,changed_table,new_unique_field):
     fields = mapping_function.fields(db)
     if db[changed_table]["id"] not in fields:
         fields.append(db[changed_table]["id"])
-    exec_str="""
-try:
-    db(db[changed_table][\"id\"] == row[changed_table][\"id\"]).update(%(new_field)s = changed_value)
-except KeyError:
-    db(db[changed_table][\"id\"] == row[\"id\"]).update(%(new_field)s = changed_value)
-""" % {"new_field":new_unique_field}
+    exec_str="""db(db[changed_table][\"id\"] == row_id).update(%(new_field)s = changed_value)""" % {"new_field":new_unique_field}
     for row in db(mapping_function.query(db)).select(*fields):
+        try:
+            row_id = row[changed_table]["id"]
+        except KeyError:
+            row_id = row["id"]
         changed_value = mapping_function.mapping(row)
         exec exec_str in globals(), locals()    
     db.commit()
