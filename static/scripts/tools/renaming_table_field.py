@@ -25,7 +25,10 @@ except NameError:
 '''
     globals().update(**old_env)
     exec old_str in globals(), locals()
-    return db
+    driver = ""
+    if settings.database.db_type:
+        dbengine = settings.database.db_type
+    return [db,dbengine]
 
 def renaming_table(db,old_table_name,new_table_name):
     try:
@@ -56,12 +59,27 @@ def copy_field(db,table_name,old_field_name,new_field_name):
         db(db[table_name][old_field_name] == row[old_field_name]).update(**dict_update)
     return db
 
-def renaming_field(db,table_name,old_field_name,new_field_name,attributes_to_copy = None):
-    try:
-        db.executesql("ALTER TABLE %s RENAME COLUMN %s to %s;" % (table_name,old_field_name,new_field_name))
-    except Exception:
-        db = adding_renamed_fields(db,table_name,old_field_name,new_field_name,attributes_to_copy)
+
+def map_type(dal_type):
+    if dal_type == "string":
+        return "varchar"
+    else:
+        return dal_type
+
+def renaming_field(db,table_name,old_field_name,new_field_name,attributes_to_copy = None,dbengine="sqlite"):
+    if dbengine == "sqlite":
         db = copy_field(db,table_name,old_field_name,new_field_name)     
+        list_index = db.executesql("SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='%s' ORDER BY name;" %(table_name))
+        for element in list_index:
+            if element[0] is not None and "%s(%s)" % (table_name,old_field_name) in element[0]:
+                db.executesql("CREATE INDEX %s__idx on %s(%s);" % (new_field_name, table_name,new_field_name))
+    elif dbengine == "mysql":
+        sql_type = map_type(db[table_name][old_field_name].type)
+        query = "ALTER TABLE %s CHANGE %s %s %s(%s)" % (table_name,old_field_name,new_field_name,sql_type,db[table_name][old_field_name].length)
+        db.executesql(query)
+    else :
+        query = "ALTER TABLE %s RENAME COLUMN %s TO %s" % (table_name,old_field_name,new_field_name)
+        db.executesql(query)
     db.commit()
 
 
@@ -70,6 +88,9 @@ attributes_to_copy = ["type","length","default","required","requires","ondelete"
         "autodelete","represent","uploadfolder","uploadseparate","uploadfs","compute","custom_store",
         "custom_retrieve","custom_retrieve_file_properties","custom_delete","filter_in","filter_out"]
         
-db = get_old_db()
-renaming_field(db,"org_organisation","organisation_type_id","renamed_field2",attributes_to_copy)
+dbengine = ""
+[db,dbengine] = get_old_db()
+if not dbengine:
+    dbengine = "sqlite"
+renaming_field(db,"pr_person","first_name","renamed_person2",attributes_to_copy,dbengine)
 renaming_table(db,"renamed_vehicle","vehicle_vehicle")
