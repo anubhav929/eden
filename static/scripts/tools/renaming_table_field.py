@@ -25,7 +25,7 @@ except NameError:
 '''
     globals().update(**old_env)
     exec old_str in globals(), locals()
-    driver = ""
+    dbengine = ""
     if settings.database.db_type:
         dbengine = settings.database.db_type
     return [db,dbengine]
@@ -47,7 +47,7 @@ def adding_renamed_fields(db,table_name,old_field_name,new_field_name,attributes
     except KeyError:
         table_primary_key = None
     for attribute in attributes_to_copy:
-        exec_str = "db[table_name][old_field_name].%(attribute)s = new_field.%(attribute)s" % {"attribute":attribute}
+        exec_str = "new_field.%(attribute)s = db[table_name][old_field_name].%(attribute)s" % {"attribute":attribute}
         exec exec_str in globals() , locals()
     temp_db.define_table(table_name ,db[table_name],new_field,primarykey = table_primary_key)
     return temp_db
