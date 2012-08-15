@@ -17,7 +17,7 @@ def renaming_field():
             "custom_retrieve","custom_retrieve_file_properties","custom_delete","filter_in","filter_out"]        
     migration_scripts.renaming_field("pr_person","first_name","renamed_person4",attributes_to_copy,dbengine)
 
-def renaming_field():
+def renaming_table():
     migration_scripts.set_globals("/home/web2py","eden")
     migration_scripts.renaming_table("vehicle_vehicle","rename_vehicle")
 
