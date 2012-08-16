@@ -82,11 +82,11 @@ def renaming_table(web2py_path,app):
     
 
 def adding_new_field(web2py_path,app):
-    field_to_update = "NewField3"
+    field_to_update = "new_field"
     changed_table = "org_organisation"
     migration_scripts.migrating_to_unique_field(web2py_path,app,field_to_update,changed_table,["org_organisation_type","org_sector"])
     db = get_migrated_db()
-    for row in db(db[changed_table]).select():
+    for row in db().select(db[changed_table]["id"],db[changed_table][field_to_update]):
         print "id = ",row["id"],field_to_update," = ",row[field_to_update]
     
 
