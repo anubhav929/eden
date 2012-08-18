@@ -17,8 +17,9 @@ from migration_helping_methods import *
 
 def list_field_to_reference(web2py_path, app , new_table_name , new_list_field , list_field_name , old_table_id_field , old_table):
     """
-    This method handles the migration in which a new table with a column for the values they'll get from the list field is made
-    and maybe some empty columns to be filled in later. That new table has a foreign key reference back to the original table.
+    This method handles the migration in which a new table with a column for the 
+    values they'll get from the list field is made and maybe some empty columns to be filled in later. 
+    That new table has a foreign key reference back to the original table.
     Then for each value in the list field for each record in the original table, 
     they create one record in the new table that points back to the original record.
   
@@ -65,7 +66,7 @@ def migrating_to_unique_field(web2py_path, app ,field_to_update,changed_table , 
 
 def update_field_by_mapping(web2py_path, app ,field_to_update,changed_table , mapping_function ):
     """
-    Update the the calues of an existing field according to the mappings given through the mapping_funation
+    Update the the values of an existing field according to the mappings given through the mapping_function
     
     - Method of Calling
 
@@ -85,7 +86,7 @@ def update_field_by_mapping(web2py_path, app ,field_to_update,changed_table , ma
 
 def migration_renaming_table(web2py_path, app ,old_table_name,new_table_name):
     """
-    Renaming a particular table , Thus if any fields point to that table that should be handled too.
+    Renaming a particular table , Thus if any fields references to that table it will be handled too.
     
     - Method of Calling
 
@@ -103,20 +104,21 @@ def migration_renaming_table(web2py_path, app ,old_table_name,new_table_name):
 
 def migration_renaming_field(web2py_path, app ,table_name,old_field_name,new_field_name,attributes_to_copy = None):
     """
-    Adding values to a new field , or update an existing field through the mappings given through the mapping_funation
-
+    Renaming a particular field , while keeping the other properties of the field same. 
+    Also if there are some index on that table that will be recreated and other constraints will remain unchanged too.
+    
     Method of Calling
 
     import migration_scripts
-    import mapping_function
-    migration_scripts.migrating_to_unique_field( web2py_path, app ,field_to_update , changed_table , list_of_tables)
-    Description of arguments
+    migration_scripts.migration_renaming_field(web2py_path, app, old_table, old_field_name , new_field_name ,attributes_to_copy)
+    
+    @param  web2py_path        :    The path to the web2py congaing the Eden app (i.e "/home/web2py")
+    @param  app                :    The name of the eden application of whose database needs to be migrated (i.e "eden")
+    @param  old_table          :    The name of the table in which the field is renamed
+    @param  old_field_name     :    The name of the original field before renaming
+    @param  new_field_name     :    The name of the field after renaming
+    @param  attributes_to_copy :    The list of attributes which needs to be copied from the old_field to the new_field (needed only in sqlite)
 
-    @param  web2py_path        :   The path to the web2py congaing the Eden app (i.e "/home/web2py")
-    @param    app              :   The name of the eden application of whose database needs to be migrated (i.e "eden")
-    @param    field_to_update  :   The name of the field to be updated according to the mapping
-    @param    changed_table    :   The name of the original table in which the new unique field id added
-    @param    list_of_tables   :   These contains the list of tables which the changed_tables references
     """
     set_globals(web2py_path,app)
     renaming_field(table_name,old_field_name,new_field_name,attributes_to_copy)
