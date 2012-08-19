@@ -1,11 +1,17 @@
+
+#This script is the test script for apps_db_comparison script 
+#It makes 2 new web2py apps to compare
+#Just run the test script to compare
+#i.e python applications/eden/tests/dbmigration/TestScript.py
+
 import os
 import sys
 import subprocess
 import shutil
 
-"""
-CALCULATING PATHS
-"""
+
+#CALCULATING PATHS
+
 
 own_path = os.path.realpath(__file__)
 own_path = own_path.split(os.path.sep)
@@ -22,9 +28,8 @@ NEW_TEST_PATH = "%s/applications/%s/tests/dbmigration/new_models" % (WEB2PY_PATH
 if not 'WEB2PY_PATH' in os.environ:
     os.environ['WEB2PY_PATH'] = WEB2PY_PATH
 
-"""
-MAKING 2 APPS FOR TESTS , AND LOADING THERE MODELS FROM THE FILES IN THE TEST
-"""
+
+#MAKING 2 APPS FOR TESTS , AND LOADING THERE MODELS FROM THE FILES IN THE TEST
 
 os.chdir("%s/applications" % (os.environ['WEB2PY_PATH']))
 sys.path.append("%s/applications" % (os.environ['WEB2PY_PATH']))
@@ -33,6 +38,9 @@ os.mkdir(NEW_APP)
 
 
 def make_app(app_name,test_path_name):
+    """
+    Making the app with the appropriate model 
+    """
     os.chdir("%s/applications/%s" % (os.environ['WEB2PY_PATH'], app_name))
     sys.path.append("%s/applications/%s" % (os.environ['WEB2PY_PATH'], app_name))
     os.mkdir("private")
@@ -55,9 +63,8 @@ def make_app(app_name,test_path_name):
 make_app(OLD_APP, OLD_TEST_PATH)
 make_app(NEW_APP, NEW_TEST_PATH)
 
-"""
-Running the comparison script
-"""
-subprocess.call("python %s/applications/%s/static/scripts/tools/apps_db_comparison.py %s %s %s" % \
+
+#Running the comparison script
+subprocess.call("python %s/applications/%s/static/scripts/Database_migration/apps_db_comparison.py %s %s %s" % \
          (WEB2PY_PATH , CURRENT_EDEN_APP ,WEB2PY_PATH,OLD_APP,NEW_APP) , shell =True )
 
